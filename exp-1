@@ -1,16 +1,194 @@
-import pandas as pd
-df = pd.read_csv('sample_data.csv')
-print("Original Data:\n", df)
-df = df.drop_duplicates()
-df['Age'] = df['Age'].fillna(df['Age'].median())
-df['Salary'] = df['Salary'].fillna(df['Salary'].mean())
-df['Department'] = df['Department'].replace({
-    'Markting': 'Marketing',
-    'Saless': 'Sales'
-})
-Q1 = df['Salary'].quantile(0.25)
-Q3 = df['Salary'].quantile(0.75)
-IQR = Q3 - Q1
-df = df[(df['Salary'] >= (Q1 - 1.5 * IQR)) & (df['Salary'] <= (Q3 + 1.5 * IQR))]
-print("\nCleaned Data:\n", df)
-df.to_csv('cleaned_sample_data.csv', index=False)
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "fd57916e-f367-48eb-b814-8d77e569342d",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Requirement already satisfied: rapidfuzz in c:\\users\\prash\\anaconda3\\lib\\site-packages (3.13.0)\n",
+      "✅ Cleaned data saved to 'cleaned_data.csv'\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\prash\\AppData\\Local\\Temp\\ipykernel_23416\\696316036.py:10: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\n",
+      "The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n",
+      "\n",
+      "For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n",
+      "\n",
+      "\n",
+      "  df['Age'].fillna(df['Age'].median(), inplace=True)\n",
+      "C:\\Users\\prash\\AppData\\Local\\Temp\\ipykernel_23416\\696316036.py:13: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\n",
+      "The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n",
+      "\n",
+      "For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n",
+      "\n",
+      "\n",
+      "  df['Salary'].fillna(df['Salary'].mean(), inplace=True)\n"
+     ]
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Name</th>\n",
+       "      <th>Age</th>\n",
+       "      <th>Gender</th>\n",
+       "      <th>Salary</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Bob</td>\n",
+       "      <td>30.0</td>\n",
+       "      <td>male</td>\n",
+       "      <td>60000.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Eve</td>\n",
+       "      <td>30.0</td>\n",
+       "      <td>female</td>\n",
+       "      <td>55000.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Frank</td>\n",
+       "      <td>29.0</td>\n",
+       "      <td>male</td>\n",
+       "      <td>58000.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>Grace</td>\n",
+       "      <td>30.0</td>\n",
+       "      <td>female</td>\n",
+       "      <td>61000.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Heidi</td>\n",
+       "      <td>33.0</td>\n",
+       "      <td>female</td>\n",
+       "      <td>59000.0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    Name   Age  Gender   Salary\n",
+       "1    Bob  30.0    male  60000.0\n",
+       "5    Eve  30.0  female  55000.0\n",
+       "6  Frank  29.0    male  58000.0\n",
+       "7  Grace  30.0  female  61000.0\n",
+       "8  Heidi  33.0  female  59000.0"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "!pip install rapidfuzz\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "from rapidfuzz import process\n",
+    "\n",
+    "df = pd.read_csv('dirty_data.csv')\n",
+    "df = df.drop_duplicates()\n",
+    "\n",
+    "if 'Age' in df.columns:\n",
+    "    df['Age'].fillna(df['Age'].median(), inplace=True)\n",
+    "\n",
+    "if 'Salary' in df.columns:\n",
+    "    df['Salary'].fillna(df['Salary'].mean(), inplace=True)\n",
+    "\n",
+    "valid_genders = ['male', 'female']\n",
+    "\n",
+    "def correct_gender(gender):\n",
+    "    gender = str(gender).strip().lower()\n",
+    "    best_match = process.extractOne(gender, valid_genders, score_cutoff=50)\n",
+    "    return best_match[0] if best_match else 'unknown'\n",
+    "\n",
+    "if 'Gender' in df.columns:\n",
+    "    df['Gender'] = df['Gender'].apply(correct_gender)\n",
+    "\n",
+    "if 'Salary' in df.columns:\n",
+    "    Q1 = df['Salary'].quantile(0.25)\n",
+    "    Q3 = df['Salary'].quantile(0.75)\n",
+    "    IQR = Q3 - Q1\n",
+    "    lower_bound = Q1 - 1.5 * IQR\n",
+    "    upper_bound = Q3 + 1.5 * IQR\n",
+    "    df = df[(df['Salary'] >= lower_bound) & (df['Salary'] <= upper_bound)]\n",
+    "\n",
+    "df.to_csv('cleaned_data.csv', index=False)\n",
+    "print(\"✅ Cleaned data saved to 'cleaned_data.csv'\")\n",
+    "df.head()\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "7b11cbba-91b8-46a9-b520-a65cd46a658c",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d1d12548-bf32-4b6c-9d2f-868b88603aa9",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python [conda env:base] *",
+   "language": "python",
+   "name": "conda-base-py"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
