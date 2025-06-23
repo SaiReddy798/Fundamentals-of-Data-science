@@ -1,0 +1,68 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "3a68c718-9ff3-40a0-b2d2-85ff3ffff598",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Average scores per subject: [83.75 84.5  84.75 78.75]\n",
+      "Subject with highest average score: English\n"
+     ]
+    }
+   ],
+   "source": [
+    "import numpy as np\n",
+    "\n",
+    "student_scores = np.array([\n",
+    "    [80, 90, 85, 70],\n",
+    "    [75, 88, 78, 85],\n",
+    "    [92, 81, 86, 78],\n",
+    "    [88, 79, 90, 82]\n",
+    "])\n",
+    "\n",
+    "subjects = [\"Math\", \"Science\", \"English\", \"History\"]\n",
+    "\n",
+    "subject_averages = np.mean(student_scores, axis=0)\n",
+    "max_index = np.argmax(subject_averages)\n",
+    "highest_avg_subject = subjects[max_index]\n",
+    "\n",
+    "print(\"Average scores per subject:\", subject_averages)\n",
+    "print(\"Subject with highest average score:\", highest_avg_subject)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3af13ad8-b432-474d-845c-81af78acf522",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python [conda env:base] *",
+   "language": "python",
+   "name": "conda-base-py"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
